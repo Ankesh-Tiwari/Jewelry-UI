@@ -1,8 +1,8 @@
 let slides = document.querySelectorAll(".slide");
 let index = 0;
 
-// ------------ HAMBURGER MENU --------------
-// ------ MOBILE MENU (slide-in overlay) ----------
+// ================= HAMBURGER MENU =================
+// ===== MOBILE MENU (slide-in overlay) =====
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 const mobileMenu   = document.getElementById('mobileMenu');
 const menuOverlay  = document.getElementById('menuOverlay');
@@ -26,108 +26,258 @@ menuOverlay.addEventListener('click', closeMenu);
 
 
 
+// ===== COVERFLOW DIAMOND SLIDER =====
+// ===== COVERFLOW DIAMOND SLIDER — INFINITE LOOP =====
+// ===== CONVEYOR BELT DIAMOND SLIDER =====
 (function () {
-  const track    = document.querySelector('.diamond-track');
-  const prevBtn  = document.querySelector('.diamond-prev');
-  const nextBtn  = document.querySelector('.diamond-next');
-  const dotsWrap = document.querySelector('.diamond-dots');
-  if (!track) return;
+  const diamonds = [
+    { name: "Round",   sub: "Every diamond in our collection", img: "images/Round.webp" },
+    { name: "Emerald", sub: "Every diamond in our collection", img: "images/Emerald.webp" },
+    { name: "Round",   sub: "Every diamond in our collection", img: "images/Round.webp" },
+    { name: "Oval",    sub: "Every diamond in our collection", img: "images/Oval.webp" },
+    { name: "Heart",   sub: "Every diamond in our collection", img: "images/Heart.webp" },
+    { name: "Asscher", sub: "Every diamond in our collection", img: "images/Asscher.webp" },
+    { name: "Heart",   sub: "Every diamond in our collection", img: "images/Heart.webp" },
+  ];
 
-  // ── Clone cards for infinite loop ──
-  const originalCards = Array.from(track.children);
-  const total = originalCards.length;
+  const stage   = document.getElementById('cfStage');
+  const dotsEl  = document.getElementById('cfDots');
+  const prevBtn = document.getElementById('cfPrev');
+  const nextBtn = document.getElementById('cfNext');
+  if (!stage) return;
 
-  // Clone all cards and append + prepend
-  originalCards.forEach(card => {
-    const clone = card.cloneNode(true);
-    clone.setAttribute('aria-hidden', 'true');
-    track.appendChild(clone);
+  const total  = diamonds.length;
+  let order    = diamonds.map((_, i) => i);
+  const CENTER = Math.floor(total / 2);
+  let isAnimating = false;
+
+  const cards = order.map(() => {
+    const card = document.createElement('div');
+    card.className = 'cf-card';
+    card.innerHTML = `
+      <img src="" alt=""/>
+      <div class="cf-title"></div>
+      <div class="cf-sub"></div>
+    `;
+    stage.appendChild(card);
+    return card;
   });
-  originalCards.forEach(card => {
-    const clone = card.cloneNode(true);
-    clone.setAttribute('aria-hidden', 'true');
-    track.prepend(clone);
+
+  diamonds.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'cf-dot';
+    dot.addEventListener('click', () => goToData(i));
+    dotsEl.appendChild(dot);
   });
 
-  const allCards = Array.from(track.children);
-
-  function getCardWidth() {
-    return allCards[0]
-      ? Math.round(allCards[0].getBoundingClientRect().width + 16)
-      : 216;
+  function getGap() {
+    if (window.innerWidth <= 480) return 90;
+    if (window.innerWidth <= 768) return 110;
+    return 150;
   }
 
-  // Start at the first real card (after the prepended clones)
-  let currentIndex = total; 
-  let isTransitioning = false;
-
-  function goTo(index, animate = true) {
-    if (!animate) {
-      track.style.transition = 'none';
-    } else {
-      track.style.transition = 'transform 600ms ease';
-    }
-    track.style.transform = `translateX(${-index * getCardWidth()}px)`;
-    currentIndex = index;
-  }
-
-  // Set initial position instantly
-  goTo(currentIndex, false);
-
-  // After transition ends, silently jump for infinite loop
-  track.addEventListener('transitionend', () => {
-    isTransitioning = false;
-    if (currentIndex >= total * 2) {
-      goTo(total, false);
-    } else if (currentIndex < total) {
-      goTo(total * 2 - 1, false);
-    }
-    updateDots();
-  });
-
-  function advance(dir = 1) {
-    if (isTransitioning) return;
-    isTransitioning = true;
-    goTo(currentIndex + dir);
-  }
-
-  // ── Dots (only for original cards) ──
-  originalCards.forEach((_, i) => {
-    const btn = document.createElement('button');
-    btn.addEventListener('click', () => {
-      const target = total + i;
-      isTransitioning = true;
-      goTo(target);
-    });
-    dotsWrap.appendChild(btn);
-  });
-
-  function updateDots() {
-    const realIndex = ((currentIndex - total) % total + total) % total;
-    Array.from(dotsWrap.children).forEach((btn, i) => {
-      btn.classList.toggle('active', i === realIndex);
+  function updateContent() {
+    order.forEach((dataIdx, slotIdx) => {
+      const d    = diamonds[dataIdx];
+      const card = cards[slotIdx];
+      card.querySelector('img').src = d.img;
+      card.querySelector('img').alt = d.name;
+      card.querySelector('.cf-title').textContent = d.name;
+      card.querySelector('.cf-sub').textContent   = d.sub;
     });
   }
 
+  function render(animate) {
+    const gap = getGap();
+    cards.forEach((card, slotIdx) => {
+      const offset    = slotIdx - CENTER;
+      const absOffset = Math.abs(offset);
+      const sign      = Math.sign(offset);
+      const tx        = offset * gap;
+      const ry        = -sign * Math.min(absOffset * 10, 20);
+      const tz        = -absOffset * 20;
+      const scale     = absOffset === 0 ? 1.05 : Math.max(0.88, 1 - absOffset * 0.06);
+      const zIdx      = absOffset === 0 ? 100 : total - absOffset;
 
-  
-  updateDots();
+      card.style.transition = animate
+        ? 'transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.65s ease, box-shadow 0.65s ease'
+        : 'none';
+      card.style.transform = `translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${scale})`;
+      card.style.opacity   = '1';
+      card.style.zIndex    = zIdx;
+      card.classList.toggle('active', slotIdx === CENTER);
+    });
 
-  // ── Arrow buttons ──
-  nextBtn.addEventListener('click', () => advance(1));
-  prevBtn.addEventListener('click', () => advance(-1));
+    const activeDotIdx = order[CENTER];
+    dotsEl.querySelectorAll('.cf-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === activeDotIdx);
+    });
+  }
 
-  
-  let autoTimer = setInterval(() => advance(1), 2500);
+  function goNext() {
+    if (isAnimating) return;
+    isAnimating = true;
+    const gap = getGap();
 
-  const sliderEl = document.querySelector('.diamond-slider');
-  sliderEl.addEventListener('mouseenter', () => clearInterval(autoTimer));
-  sliderEl.addEventListener('mouseleave', () => {
-    autoTimer = setInterval(() => advance(1), 2500);
+    // Exit leftmost card to the left behind
+    const exitCard = cards[0];
+    exitCard.style.transition = 'transform 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease';
+    exitCard.style.transform  = `translateX(${-(CENTER + 1) * gap * 1.5}px) translateZ(-200px) scale(0.4)`;
+    exitCard.style.opacity    = '0';
+
+    // Slide remaining cards left
+    for (let i = 1; i < total; i++) {
+      const offset    = (i - 1) - CENTER;
+      const absOffset = Math.abs(offset);
+      const sign      = Math.sign(offset);
+      const tx        = offset * gap;
+      const ry        = -sign * Math.min(absOffset * 10, 20);
+      const tz        = -absOffset * 20;
+      const scale     = absOffset === 0 ? 1.05 : Math.max(0.88, 1 - absOffset * 0.06);
+      const zIdx      = absOffset === 0 ? 100 : total - absOffset;
+
+      cards[i].style.transition = 'transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.65s ease';
+      cards[i].style.transform  = `translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${scale})`;
+      cards[i].style.zIndex     = zIdx;
+      cards[i].classList.toggle('active', (i - 1) === CENTER);
+    }
+
+    setTimeout(() => {
+      // Rotate order: first becomes last
+      const first = order.shift();
+      order.push(first);
+
+      // Teleport exit card to rightmost position silently
+      exitCard.style.transition = 'none';
+      const ro    = CENTER;
+      exitCard.style.transform  = `translateX(${ro * gap}px) translateZ(${-ro * 20}px) rotateY(${-Math.min(ro * 10, 20)}deg) scale(${Math.max(0.88, 1 - ro * 0.06)})`;
+      exitCard.style.opacity    = '0';
+      exitCard.style.zIndex     = total - ro;
+
+      // Move first card element to end of array
+      cards.push(cards.shift());
+
+      updateContent();
+      stage.getBoundingClientRect(); // force repaint
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          cards[total - 1].style.transition = 'opacity 0.4s ease';
+          cards[total - 1].style.opacity    = '1';
+          isAnimating = false;
+          syncDots();
+        });
+      });
+    }, 680);
+  }
+
+  function goPrev() {
+    if (isAnimating) return;
+    isAnimating = true;
+    const gap = getGap();
+
+    // Exit rightmost card to the right behind
+    const exitCard = cards[total - 1];
+    exitCard.style.transition = 'transform 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease';
+    exitCard.style.transform  = `translateX(${(CENTER + 1) * gap * 1.5}px) translateZ(-200px) scale(0.4)`;
+    exitCard.style.opacity    = '0';
+
+    // Slide remaining cards right
+    for (let i = 0; i < total - 1; i++) {
+      const offset    = (i + 1) - CENTER;
+      const absOffset = Math.abs(offset);
+      const sign      = Math.sign(offset);
+      const tx        = offset * gap;
+      const ry        = -sign * Math.min(absOffset * 10, 20);
+      const tz        = -absOffset * 20;
+      const scale     = absOffset === 0 ? 1.05 : Math.max(0.88, 1 - absOffset * 0.06);
+      const zIdx      = absOffset === 0 ? 100 : total - absOffset;
+
+      cards[i].style.transition = 'transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.65s ease';
+      cards[i].style.transform  = `translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${scale})`;
+      cards[i].style.zIndex     = zIdx;
+      cards[i].classList.toggle('active', (i + 1) === CENTER);
+    }
+
+    setTimeout(() => {
+      // Rotate order: last becomes first
+      const last = order.pop();
+      order.unshift(last);
+
+      // Teleport exit card to leftmost position silently
+      exitCard.style.transition = 'none';
+      const lo    = CENTER;
+      exitCard.style.transform  = `translateX(${-lo * gap}px) translateZ(${-lo * 20}px) rotateY(${Math.min(lo * 10, 20)}deg) scale(${Math.max(0.88, 1 - lo * 0.06)})`;
+      exitCard.style.opacity    = '0';
+      exitCard.style.zIndex     = total - lo;
+
+      // Move last card element to front of array
+      cards.unshift(cards.pop());
+
+      updateContent();
+      stage.getBoundingClientRect(); // force repaint
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          cards[0].style.transition = 'opacity 0.4s ease';
+          cards[0].style.opacity    = '1';
+          isAnimating = false;
+          syncDots();
+        });
+      });
+    }, 680);
+  }
+
+  function syncDots() {
+    const activeDotIdx = order[CENTER];
+    dotsEl.querySelectorAll('.cf-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === activeDotIdx);
+    });
+  }
+
+  function goToData(targetDataIdx) {
+    const currentDataIdx = order[CENTER];
+    if (targetDataIdx === currentDataIdx) return;
+    let diff = targetDataIdx - currentDataIdx;
+    if (diff > total / 2)  diff -= total;
+    if (diff < -total / 2) diff += total;
+    let steps = Math.abs(diff);
+    const dir = diff > 0 ? goNext : goPrev;
+    function step() {
+      if (steps <= 0) return;
+      dir();
+      steps--;
+      if (steps > 0) setTimeout(step, 720);
+    }
+    step();
+  }
+
+  prevBtn.addEventListener('click', () => { if (!isAnimating) goPrev(); });
+  nextBtn.addEventListener('click', () => { if (!isAnimating) goNext(); });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { if (!isAnimating) goPrev(); }
+    if (e.key === 'ArrowRight') { if (!isAnimating) goNext(); }
   });
 
- 
-  window.addEventListener('resize', () => goTo(currentIndex, false));
+  let touchX = 0;
+  stage.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 40) { dx < 0 ? goNext() : goPrev(); }
+  });
+
+  let autoTimer = setInterval(() => { if (!isAnimating) goNext(); }, 2500);
+  stage.addEventListener('mouseenter', () => clearInterval(autoTimer));
+  stage.addEventListener('mouseleave', () => {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => { if (!isAnimating) goNext(); }, 2500);
+  });
+
+  window.addEventListener('resize', () => render(false));
+
+  updateContent();
+  render(false);
 })();
 
 
@@ -148,7 +298,7 @@ function showSlide() {
 setInterval(showSlide, 4000);
 
 
-// -------- HERO RING CAROUSEL -----
+// ===== HERO RING CAROUSEL =====
 (function () {
   const slides = Array.from(document.querySelectorAll('.hero-slide'));
   const title  = document.getElementById('hero-title');
@@ -163,10 +313,10 @@ setInterval(showSlide, 4000);
 
   // positions cycle: left=0, center=1, right=2
   const POSITIONS = ['pos-left', 'pos-center', 'pos-right'];
-  let centerIndex = 1; 
+  let centerIndex = 1; // which slide is currently center
 
   function getPos(slideIndex) {
-    
+    // relative position from center
     const total = slides.length;
     const diff = ((slideIndex - centerIndex) % total + total) % total;
     if (diff === 0) return 'pos-center';

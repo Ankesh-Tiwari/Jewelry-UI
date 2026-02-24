@@ -908,165 +908,213 @@ section.grid::before {
 /* --------- DIAMOND SLIDER --------- */
 .diamonds {
   text-align: center;
-  padding: 60px 20px;
-  background: #ffffff;
+  padding: 60px 20px 40px;
+  background: #ffffff;    /* ADD this — clean white behind diamonds */
   position: relative;
   z-index: 1;
 }
+.diamonds h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
 
+.diamonds > p {
+  color: #888;
+  font-size: 0.95rem;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
 
-.diamond-slider {
+/* ===== COVERFLOW STAGE ===== */
+.cf-stage-wrap {
   position: relative;
-  max-width: 1100px;
-  margin: 30px auto 0;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  overflow: visible;          /* ADD this if not present */
 }
 
-.diamond-track-wrap {
-  overflow: hidden;
-}
-
-.diamond-track {
+.cf-stage {
+  position: relative;
+  height: 320px;
   display: flex;
-  gap: 16px;
-  transition: transform 600ms ease;
-  will-change: transform;
-
+  align-items: center;
+  justify-content: center;
+  perspective: 1000px;
+  perspective-origin: 50% 50%;
+  overflow: visible;
 }
 
-.diamond-card {
-  flex: 0 0 200px;
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 24px 16px 18px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
-  text-align: center;
+/* ── Each card ── */
+.cf-card {
+  position: absolute;
+  width: 220px;
+  height: 280px;
+  border-radius: 12px;
+  background: #ffffff;                        /* CHANGE to white */
+  border: 1px solid rgba(0,0,0,0.08);         /* CHANGE to light border */
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
+  justify-content: center;
+  padding: 20px 16px 18px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity   0.65s ease,
+    box-shadow 0.65s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
-.diamond-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.13);
-}
-
-.diamond-card img {
-  width: 130px;
-  height: 130px;
+/* ── Diamond image ── */
+.cf-card img {
+  width: 140px;
+  height: 140px;
   object-fit: contain;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  filter: brightness(0.95);
+  transition: transform 0.4s ease;
+  background-color: transparent;
+  
 }
 
-.diamond-title {
+
+
+/* ── Card text ── */
+.cf-card .cf-title {
+  font-size: 15px;
   font-weight: 700;
-  font-size: 16px;
   color: #1a1a1a;
-  margin-top: 8px;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
 }
 
-.diamond-sub {
-  font-size: 13px;
-  color:#F7B79D;
-  margin-top: 6px;
-  line-height: 1.4;
+.cf-card .cf-sub {
+  font-size: 11px;
+  color: #e07840;                               /* CHANGE to grey text */
+  letter-spacing: 0.04em;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: wrap;
+  white-space: nowrap;
   width: 100%;
 }
+/* ── Active (center) card ── */
+.cf-card.active {
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.15),
+    0 0 0 1px rgba(0,0,0,0.08);              /* CHANGE shadow to light */
+}
 
-/* Nav arrows */
-.diamond-prev,
-.diamond-next {
+.cf-card.active img {
+  transform: translateY(-4px) scale(1.06);
+}
+
+/* ── Arrows ── */
+.cf-prev,
+.cf-next {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #e0e0e0;
   width: 42px;
   height: 42px;
   border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 20px;
-  color: #555;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
-  transition: background 0.2s;
+  z-index: 50;
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
 }
-
-.diamond-prev:hover,
-.diamond-next:hover {
-  background: #f0f0f0;
+.cf-prev:hover,
+.cf-next:hover {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.4);
+  color: #ffffff;
 }
+.cf-prev { left: -10px; }
+.cf-next { right: -10px; }
 
-.diamond-prev {
-  left: -22px;
-}
-
-.diamond-next {
-  right: -22px;
-}
-
-/* Dots */
-.diamond-dots {
-  margin-top: 24px;
+/* ── Dots ── */
+.cf-dots {
   display: flex;
   justify-content: center;
   gap: 8px;
+  margin-top: 28px;
 }
 
-.diamond-dots button {
-  width: 10px;
-  height: 10px;
+.cf-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  background: rgba(0,0,0,0.12);
   border: none;
-  background: #ddd;
   cursor: pointer;
+  transition: all 0.3s ease;
   padding: 0;
-  transition: background 0.3s;
 }
 
-.diamond-dots button.active {
-  background: #333;
+.cf-dot.active {
+  background: #1a1a1a;
+  transform: scale(1.3);
 }
 
-/* Responsive */
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .diamond-card {
-    flex: 0 0 150px;
-    padding: 18px 10px 14px;
+  .cf-stage {
+    height: 260px;
   }
 
-  .diamond-card img {
-    width: 100px;
-    height: 100px;
+  .cf-card {
+    width: 170px;
+    height: 220px;
   }
 
-  .diamond-prev {
-    left: 2px;
-  }
-
-  .diamond-next {
-    right: 2px;
-  }
-}
-
-@media (max-width: 480px) {
-  .diamond-card {
-    flex: 0 0 130px;
-  }
-
-  .diamond-card img {
+  .cf-card img {
     width: 80px;
     height: 80px;
   }
+
+  .cf-card .cf-title {
+    font-size: 13px;
+  }
+
+  .cf-prev { left: 0; }
+  .cf-next { right: 0; }
 }
 
+@media (max-width: 480px) {
+  .cf-stage {
+    height: 230px;
+  }
+
+  .cf-card {
+    width: 145px;
+    height: 195px;
+  }
+
+  .cf-card img {
+    width: 65px;
+    height: 65px;
+    margin-bottom: 10px;
+  }
+
+  .cf-card .cf-title {
+    font-size: 12px;
+  }
+
+  .cf-card .cf-sub {
+    font-size: 10px;
+  }
+}
 
 
 /* ------ NEWSLETTER ------ */

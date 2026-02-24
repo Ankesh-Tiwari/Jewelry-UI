@@ -188,55 +188,18 @@
 
 <!-- -------- DIAMOND SLIDER-------- -->
 <section class="diamonds">
+  <h2>Explore Loose Diamonds</h2>
+  <p>Every diamond in our collection is selected for its superior cut, symmetry, and shape.</p>
 
-    <h2>Explore Loose Diamonds</h2>
-    <p>Every diamond is selected for superior cut, symmetry, and shape.</p>
+  <div class="cf-stage-wrap">
+    <!-- Arrows sit outside stage so they don't clip -->
+    <button class="cf-prev" id="cfPrev">&#8592;</button>
+    <button class="cf-next" id="cfNext">&#8594;</button>
 
-    <div class="diamond-slider">
-        <button class="diamond-prev" aria-label="Previous">‹</button>
-        <div class="diamond-track-wrap">
-            <div class="diamond-track">
-                <div class="diamond-card">
-                    <img src="images/Round.webp" alt="Round Diamond">
-                    <div class="diamond-title">Round</div>
-                    <div class="diamond-sub">Every diamond in our collection</div>
-                </div>
-                <div class="diamond-card">
-                    <img src="images/Emerald.webp" alt="Emerald Diamond">
-                    <div class="diamond-title">Emerald</div>    
-                    <div class="diamond-sub">Every diamond in our collection</div>
-                </div>
-                 <div class="diamond-card">
-                    <img src="images/Round.webp" alt="Round Diamond">
-                    <div class="diamond-title">Round</div>
-                    <div class="diamond-sub">Every diamond in our collection</div>
-                </div>
-                <div class="diamond-card">
-                    <img src="images/Oval.webp" alt="Oval Diamond">
-                    <div class="diamond-title">Oval</div>
-                    <div class="diamond-sub">Every diamond in our collection</div>
-                </div>
-                <div class="diamond-card">
-                    <img src="images/Heart.webp" alt="Heart Diamond">
-                    <div class="diamond-title">Heart</div>
-                    <div class="diamond-sub">Every diamond in our collection</div>
-                </div>
-                <div class="diamond-card">
-                    <img src="images/Asscher.webp" alt="Asscher Diamond">
-                    <div class="diamond-title">Asscher</div>
-                    <div class="diamond-sub">Every diamond in our collection</div>
-                </div>
-                 <div class="diamond-card">
-                    <img src="images/Heart.webp" alt="Heart Diamond">
-                    <div class="diamond-title">Heart</div>
-                    <div class="diamond-sub">Every diamond in our collection</div>
-                </div>
-            </div>
-        </div>     
-        <button class="diamond-next" aria-label="Next">›</button>
-        <div class="diamond-dots" aria-hidden="false"></div>
-    </div>
+    <div class="cf-stage" id="cfStage"></div>
+  </div>
 
+  <div class="cf-dots" id="cfDots"></div>
 </section>
 
 
