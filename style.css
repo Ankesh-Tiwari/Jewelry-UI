@@ -713,8 +713,9 @@ html {
 
 
 section.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
   gap: 20px;
   padding: 0 40px 40px;
   max-width: 1200px;
@@ -722,6 +723,7 @@ section.grid {
   background: transparent;
   position: relative;
   z-index: 2;
+
 }
 
 
@@ -839,6 +841,8 @@ section.grid::before {
 
 
 
+
+
 /* Ring image fixed size (333 x 334) for product / hero ring displays */
 .ring-fixed,
 .card img.ring-fixed,
@@ -867,33 +871,13 @@ section.grid::before {
 }
 
 .card p {
-  margin-top: 6px;
+ /* margin-top: 6px; */
   color: #666;
-}
-
-
-.lower-rect {
-  background: #F7B79D;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 18px rgba(22, 30, 36, 0.06);
+  
 }
 
 
 
-.wedding-lower {
-  width: 333px;
-  height: 109px;
-  position: absolute;
-  top: 1653px;
-  left: 249px;
-  transform: rotate(0deg);
-  opacity: 1;
-  z-index: 30;
-}
 
 /* Sign up button */
 
@@ -951,7 +935,7 @@ section.grid::before {
 
 .diamond-card {
   flex: 0 0 200px;
-  background: #fff;
+  background: #ffffff;
   border-radius: 10px;
   padding: 24px 16px 18px;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
@@ -984,12 +968,12 @@ section.grid::before {
 
 .diamond-sub {
   font-size: 13px;
-  color: #999;
+  color:#F7B79D;
   margin-top: 6px;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: wrap;
   width: 100%;
 }
 
